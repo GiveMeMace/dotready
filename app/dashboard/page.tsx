@@ -49,11 +49,32 @@ export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  async function loadData() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { router.push('/auth'); return }
+
+    let { data: carrierData } = await supabase.from('carriers').select('*').eq('id', user.id).single()
+
+    if (!carrierData) {
+      const { data: newCarrier } = await supabase.from('carriers').insert({
+        id: user.id,
+        company_name: user.user_metadata?.company_name || 'My Company',
+        email: user.email,
+        phone: user.user_metadata?.phone || '',
+        trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      }).select().single()
+      carrierData = newCarrier
+    }
+
+    setCarrier(carrierData)
+    const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id).order('name')
+    setDrivers(driverData || [])
+    setLoading(false)
+  }
+
   useEffect(() => {
     loadData()
   }, [])
-
-
 
   async function addDriver(e: React.FormEvent) {
     e.preventDefault()
