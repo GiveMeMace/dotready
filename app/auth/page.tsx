@@ -25,10 +25,14 @@ function AuthForm() {
     setError('')
     setSuccess('')
     if (mode === 'signup') {
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email, password,
-        options: { data: { company_name: company, phone } }
-      })
+const { data, error: signUpError } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    data: { company_name: company, phone },
+    emailRedirectTo: 'https://dotready.co/auth/confirm'
+  }
+})
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
       if (data.user) {
         await supabase.from('carriers').insert({
