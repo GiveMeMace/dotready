@@ -97,7 +97,7 @@ export default function HomePage() {
           <p className="text-slate-500 mb-10">One plan. Everything included.</p>
           <div className="card text-left">
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-4xl font-semibold text-slate-900">$199</span>
+              <span className="text-4xl font-semibold text-slate-900">$49</span>
               <span className="text-slate-400">/month</span>
             </div>
             <p className="text-slate-500 text-sm mb-6">Per carrier. Unlimited drivers.</p>
