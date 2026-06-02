@@ -53,15 +53,7 @@ export default function DashboardPage() {
     loadData()
   }, [])
 
-  async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/auth'); return }
-    const { data: carrierData } = await supabase.from('carriers').select('*').eq('id', user.id).single()
-    setCarrier(carrierData)
-    const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id).order('name')
-    setDrivers(driverData || [])
-    setLoading(false)
-  }
+
 
   async function addDriver(e: React.FormEvent) {
     e.preventDefault()
