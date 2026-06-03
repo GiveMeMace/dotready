@@ -141,7 +141,8 @@ console.error('Error adding driver:', error.message)
                 Trial: {trialDaysLeft}d left
               </span>
             )}
-            <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
+<Link href="/account" className="text-sm text-slate-500 hover:text-slate-700">Account</Link>
+<button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
           </div>
         </div>
       </header>
