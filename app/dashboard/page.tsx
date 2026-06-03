@@ -76,12 +76,27 @@ export default function DashboardPage() {
     loadData()
   }, [])
 
-  async function addDriver(e: React.FormEvent) {
+async function addDriver(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
-    await supabase.from('drivers').insert({ ...form, carrier_id: user.id })
+    console.log('User:', user)
+    if (!user) { 
+      console.log('No user found')
+      return 
+    }
+    console.log('Inserting driver with carrier_id:', user.id)
+    const { data, error } = await supabase
+      .from('drivers')
+      .insert({ ...form, carrier_id: user.id })
+      .select()
+    console.log('Insert result:', data)
+    console.log('Insert error:', error)
+    if (error) {
+      alert('Error adding driver: ' + error.message)
+      setSaving(false)
+      return
+    }
     setForm({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
     setShowAdd(false)
     setSaving(false)
