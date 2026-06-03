@@ -166,6 +166,15 @@ async function addDriver(e: React.FormEvent) {
           ))}
         </div>
 
+{carrier?.stripe_status !== 'active' && drivers.length >= 8 && (
+          <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
+            <p className="text-sm text-amber-700 font-medium">
+              {drivers.length >= 10 ? '🚫 Driver limit reached — upgrade to add more.' : `⚠️ You're using ${drivers.length}/10 drivers on your trial.`}
+            </p>
+            <Link href="/account" className="text-xs font-semibold text-amber-700 underline">Upgrade →</Link>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-slate-900">Driver roster</h2>
           <button onClick={() => setShowAdd(!showAdd)} className="btn-primary text-sm px-4 py-2">+ Add driver</button>
