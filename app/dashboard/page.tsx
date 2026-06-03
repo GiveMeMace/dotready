@@ -80,21 +80,24 @@ export default function DashboardPage() {
 async function addDriver(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
-    const { data: { user } } = await supabase.auth.getUser()
-    console.log('User:', user)
-    if (!user) { 
-      console.log('No user found')
-      return 
+
+    const isOnTrial = carrier?.stripe_status !== 'active'
+    if (isOnTrial && drivers.length >= 10) {
+      alert('You have reached the 10 driver limit on the free trial. Please upgrade to add more drivers.')
+      setSaving(false)
+      return
     }
-    console.log('Inserting driver with carrier_id:', user.id)
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) { setSaving(false); return }
+
     const { data, error } = await supabase
       .from('drivers')
       .insert({ ...form, carrier_id: user.id })
       .select()
-    console.log('Insert result:', data)
-    console.log('Insert error:', error)
+
     if (error) {
-console.error('Error adding driver:', error.message)
+      console.error('Error adding driver:', error.message)
       setSaving(false)
       return
     }
