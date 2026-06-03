@@ -105,38 +105,73 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
+{/* Pricing */}
       <section className="py-24 px-6" id="pricing">
-        <div className="max-w-lg mx-auto text-center">
+        <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-semibold text-slate-900 mb-3">Simple pricing</h2>
-          <p className="text-slate-500 mb-12">One flat rate. Everything included. Cancel anytime.</p>
-          <div className="bg-white border-2 border-brand-600 rounded-2xl p-8 shadow-xl shadow-brand-50 text-left">
-            <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-5xl font-semibold text-slate-900">$49</span>
-              <span className="text-slate-400 text-lg">/month</span>
+          <p className="text-slate-500 mb-12">Pick the plan that fits your fleet. Cancel anytime.</p>
+          <div className="grid md:grid-cols-2 gap-6 text-left">
+
+            {/* Starter */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-8">
+              <p className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Starter</p>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-5xl font-semibold text-slate-900">$39</span>
+                <span className="text-slate-400 text-lg">/month</span>
+              </div>
+              <p className="text-slate-500 text-sm mb-6">Up to 10 drivers.</p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Up to 10 drivers',
+                  'Email + SMS alerts',
+                  'Live compliance dashboard',
+                  'CDL, medical cert & MVR tracking',
+                  'CSV compliance reports',
+                  '14-day free trial',
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm text-slate-700">
+                    <span className="text-brand-600 font-bold">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/auth?mode=signup" className="btn-secondary w-full text-center block text-sm py-3">
+                Start free trial
+              </Link>
             </div>
-            <p className="text-brand-600 text-sm font-semibold mb-6">🔒 Founder's rate — locked in forever. Only 10 spots.</p>
-            <ul className="space-y-3 mb-8">
-              {[
-                'Unlimited drivers',
-                'Email + SMS alerts at 60, 30 & 7 days',
-                'Live compliance dashboard',
-                'CSV compliance reports',
-                'CDL, medical cert & MVR tracking',
-                '14-day free trial included',
-                'Cancel anytime',
-              ].map(item => (
-                <li key={item} className="flex items-center gap-3 text-sm text-slate-700">
-                  <span className="text-brand-600 font-bold text-base">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <Link href="/auth?mode=signup" className="btn-primary w-full text-center block text-base py-3">
-              Start free trial — no card needed
-            </Link>
-            <p className="text-center text-xs text-slate-400 mt-3">14 days free, then $49/month</p>
+
+            {/* Pro */}
+            <div className="bg-white border-2 border-brand-600 rounded-2xl p-8 shadow-xl shadow-brand-50 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-xs font-bold px-4 py-1 rounded-full">MOST POPULAR</div>
+              <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-2">Pro</p>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-5xl font-semibold text-slate-900">$79</span>
+                <span className="text-slate-400 text-lg">/month</span>
+              </div>
+              <p className="text-slate-500 text-sm mb-6">Unlimited drivers.</p>
+              <ul className="space-y-3 mb-8">
+                {[
+                  'Unlimited drivers',
+                  'Email + SMS alerts',
+                  'Live compliance dashboard',
+                  'CDL, medical cert & MVR tracking',
+                  'CSV compliance reports',
+                  '14-day free trial',
+                  'Priority support',
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-3 text-sm text-slate-700">
+                    <span className="text-brand-600 font-bold">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/auth?mode=signup" className="btn-primary w-full text-center block text-sm py-3">
+                Start free trial
+              </Link>
+            </div>
+
           </div>
+          <p className="text-slate-400 text-sm mt-6">Both plans include a 14-day free trial. No credit card required to start.</p>
         </div>
       </section>
 
