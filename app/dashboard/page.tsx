@@ -93,7 +93,7 @@ async function addDriver(e: React.FormEvent) {
     console.log('Insert result:', data)
     console.log('Insert error:', error)
     if (error) {
-      alert('Error adding driver: ' + error.message)
+console.error('Error adding driver:', error.message)
       setSaving(false)
       return
     }
