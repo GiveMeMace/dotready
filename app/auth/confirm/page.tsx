@@ -16,7 +16,7 @@ export default function ConfirmPage() {
         setStatus('error')
       } else {
         setStatus('success')
-        setTimeout(() => router.push('/dashboard'), 3000)
+setTimeout(() => router.push('/auth'), 3000)
       }
     }
     handleConfirm()
@@ -42,9 +42,9 @@ export default function ConfirmPage() {
               </div>
               <h1 className="text-xl font-semibold text-slate-900 mb-2">Email confirmed!</h1>
               <p className="text-slate-500 text-sm mb-6">Welcome to DotReady. Redirecting you to your dashboard in 3 seconds...</p>
-              <Link href="/dashboard" className="btn-primary text-sm">
-                Go to dashboard now
-              </Link>
+<Link href="/auth" className="btn-primary text-sm">
+  Go to sign in
+</Link>
             </>
           )}
           {status === 'error' && (
