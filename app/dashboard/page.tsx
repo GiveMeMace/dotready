@@ -68,8 +68,16 @@ export default function DashboardPage() {
     }
 
     setCarrier(carrierData)
-    const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id).order('name')
-    setDrivers(driverData || [])
+const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id)
+const sorted = (driverData || []).sort((a, b) => {
+  const aWorst = worstDays(a)
+  const bWorst = worstDays(b)
+  if (aWorst === 999 && bWorst === 999) return 0
+  if (aWorst === 999) return 1
+  if (bWorst === 999) return -1
+  return aWorst - bWorst
+})
+setDrivers(sorted)
     setLoading(false)
   }
 
