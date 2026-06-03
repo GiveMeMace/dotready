@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase-browser'
 
 function AuthForm() {
   const searchParams = useSearchParams()
-  const [mode, setMode] = useState<'login' | 'signup'>(
+  const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>(
     searchParams.get('mode') === 'signup' ? 'signup' : 'login'
   )
   const [email, setEmail] = useState('')
@@ -24,23 +24,29 @@ function AuthForm() {
     setLoading(true)
     setError('')
     setSuccess('')
+
+    if (mode === 'forgot') {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://dotready.co/auth/reset'
+      })
+      if (error) { setError(error.message); setLoading(false); return }
+      setSuccess('Check your email for a password reset link!')
+      setLoading(false)
+      return
+    }
+
     if (mode === 'signup') {
-const { data, error: signUpError } = await supabase.auth.signUp({
-  email,
-  password,
-  options: {
-    data: { company_name: company, phone },
-    emailRedirectTo: 'https://dotready.co/auth/confirm'
-  }
-})
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { company_name: company, phone },
+          emailRedirectTo: 'https://dotready.co/auth/confirm'
+        }
+      })
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
       if (data.user) {
-        await supabase.from('carriers').insert({
-          id: data.user.id, company_name: company, email, phone,
-          trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-        })
-        setSuccess('Account created! Redirecting...')
-        setTimeout(() => router.push('/dashboard'), 1500)
+        setSuccess('Check your email to confirm your account!')
       }
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
@@ -60,12 +66,13 @@ const { data, error: signUpError } = await supabase.auth.signUp({
           <span className="font-semibold text-slate-900">DotReady</span>
         </Link>
         <h1 className="text-2xl font-semibold text-slate-900">
-          {mode === 'signup' ? 'Start your free trial' : 'Welcome back'}
+          {mode === 'signup' ? 'Start your free trial' : mode === 'forgot' ? 'Reset your password' : 'Welcome back'}
         </h1>
         <p className="text-slate-500 text-sm mt-1">
-          {mode === 'signup' ? '14 days free. No credit card required.' : 'Sign in to your dashboard.'}
+          {mode === 'signup' ? '14 days free. No credit card required.' : mode === 'forgot' ? 'Enter your email and we\'ll send a reset link.' : 'Sign in to your dashboard.'}
         </p>
       </div>
+
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
@@ -84,18 +91,32 @@ const { data, error: signUpError } = await supabase.auth.signUp({
             <label className="block text-sm font-medium text-slate-700 mb-1">Email address</label>
             <input className="input" type="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-            <input className="input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
-          </div>
+          {mode !== 'forgot' && (
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-slate-700">Password</label>
+                {mode === 'login' && (
+                  <button type="button" onClick={() => { setMode('forgot'); setError(''); setSuccess('') }} className="text-xs text-brand-600 hover:text-brand-700">
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <input className="input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
+            </div>
+          )}
+
           {error && <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           {success && <p className="text-green-600 text-sm bg-green-50 px-3 py-2 rounded-lg">{success}</p>}
+
           <button type="submit" disabled={loading} className="btn-primary w-full text-center disabled:opacity-60">
-            {loading ? 'Please wait...' : mode === 'signup' ? 'Create account' : 'Sign in'}
+            {loading ? 'Please wait...' : mode === 'signup' ? 'Create account' : mode === 'forgot' ? 'Send reset link' : 'Sign in'}
           </button>
         </form>
+
         <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">
-          {mode === 'signup' ? (
+          {mode === 'forgot' ? (
+            <>Remember your password? <button onClick={() => { setMode('login'); setError(''); setSuccess('') }} className="text-brand-600 font-medium">Sign in</button></>
+          ) : mode === 'signup' ? (
             <>Already have an account? <button onClick={() => setMode('login')} className="text-brand-600 font-medium">Sign in</button></>
           ) : (
             <>Don't have an account? <button onClick={() => setMode('signup')} className="text-brand-600 font-medium">Start free trial</button></>
