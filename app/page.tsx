@@ -5,24 +5,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-sm">CW</span>
-            </div>
-            <span className="font-semibold text-slate-900">CDLWatch</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/auth" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Sign in</Link>
-            <Link href="/auth?mode=signup" className="btn-primary text-sm px-5 py-2">Start free →</Link>
-          </div>
-        </div>
-      </nav>
+    
 
       {/* Hero */}
-      <section className="pt-32 pb-20 px-6 text-center bg-gradient-to-b from-slate-50 to-white">
+      <section className="pt-16 pb-20 px-6 text-center bg-gradient-to-b from-slate-50 to-white">
         <div className="max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-brand-50 border border-brand-100 text-brand-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 uppercase tracking-wide">
             Built for owner-operators & small fleets
