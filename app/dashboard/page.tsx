@@ -198,6 +198,54 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50">
 
+{/* Add Driver Modal */}
+      {showAdd && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-semibold text-slate-900 text-lg">Add new driver</h2>
+              <button onClick={() => setShowAdd(false)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            </div>
+            <form onSubmit={addDriver} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-xs text-slate-500 mb-1">Full name *</label>
+                  <input className="input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Email</label>
+                  <input className="input" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Phone</label>
+                  <input className="input" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">CDL expiry</label>
+                  <input className="input" type="date" value={form.cdl_expiry} onChange={e => setForm({...form, cdl_expiry: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Medical cert expiry</label>
+                  <input className="input" type="date" value={form.medical_expiry} onChange={e => setForm({...form, medical_expiry: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">MVR review due</label>
+                  <input className="input" type="date" value={form.mvr_due} onChange={e => setForm({...form, mvr_due: e.target.value})} />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="submit" disabled={saving} className="btn-primary text-sm flex-1">
+                  {saving ? 'Saving...' : 'Add driver'}
+                </button>
+                <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary text-sm flex-1">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Edit Modal */}
       {editingDriver && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
@@ -306,24 +354,6 @@ export default function DashboardPage() {
           <button onClick={() => setShowAdd(!showAdd)} className="btn-primary text-sm px-4 py-2">+ Add driver</button>
         </div>
 
-        {/* Add driver form */}
-        {showAdd && (
-          <div className="card mb-6">
-            <h3 className="font-medium text-slate-900 mb-4">New driver</h3>
-            <form onSubmit={addDriver} className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div><label className="block text-xs text-slate-500 mb-1">Full name *</label><input className="input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} required /></div>
-              <div><label className="block text-xs text-slate-500 mb-1">Email</label><input className="input" type="email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} /></div>
-              <div><label className="block text-xs text-slate-500 mb-1">Phone</label><input className="input" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} /></div>
-              <div><label className="block text-xs text-slate-500 mb-1">CDL expiry</label><input className="input" type="date" value={form.cdl_expiry} onChange={e => setForm({...form, cdl_expiry: e.target.value})} /></div>
-              <div><label className="block text-xs text-slate-500 mb-1">Medical cert expiry</label><input className="input" type="date" value={form.medical_expiry} onChange={e => setForm({...form, medical_expiry: e.target.value})} /></div>
-              <div><label className="block text-xs text-slate-500 mb-1">MVR review due</label><input className="input" type="date" value={form.mvr_due} onChange={e => setForm({...form, mvr_due: e.target.value})} /></div>
-              <div className="col-span-2 md:col-span-3 flex gap-3">
-                <button type="submit" disabled={saving} className="btn-primary text-sm">{saving ? 'Saving...' : 'Add driver'}</button>
-                <button type="button" onClick={() => setShowAdd(false)} className="btn-secondary text-sm">Cancel</button>
-              </div>
-            </form>
-          </div>
-        )}
 
         {/* Drivers table */}
         {drivers.length === 0 ? (
