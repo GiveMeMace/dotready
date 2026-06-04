@@ -72,6 +72,18 @@ export default function DashboardPage() {
     }
 
     setCarrier(carrierData)
+
+    // Paywall check — redirect if trial expired and not subscribed
+    if (carrierData) {
+      const trialEnd = carrierData.trial_ends_at ? new Date(carrierData.trial_ends_at) : null
+      const trialDaysLeft = trialEnd ? Math.ceil((trialEnd.getTime() - Date.now()) / 86400000) : null
+      const isActive = carrierData.stripe_status === 'active' || (trialDaysLeft !== null && trialDaysLeft >= 0)
+      if (!isActive) {
+        router.push('/upgrade')
+        return
+      }
+    }
+
     const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id)
     setDrivers(driverData || [])
     setLoading(false)
