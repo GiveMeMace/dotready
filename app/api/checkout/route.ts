@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase-server'
 import { stripe } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    
-    if (!user) {
+    const authHeader = req.headers.get('authorization')
+    if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    const supabase = createServiceClient()
+
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token)
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
     }
 
     const body = await req.json()
     const { priceId } = body
-    
+
     if (!priceId) {
       return NextResponse.json({ error: 'Missing priceId' }, { status: 400 })
     }
