@@ -46,7 +46,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
-  const [saving, setSaving] = useState(false)
+const [saving, setSaving] = useState(false)
+  const [sendingTest, setSendingTest] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -132,6 +133,23 @@ async function addDriver(e: React.FormEvent) {
     loadData()
   }
 
+async function sendTestEmail() {
+    setSendingTest(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const res = await fetch('/api/test-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ carrierId: session.user.id })
+    })
+    if (res.ok) {
+      alert('Summary email sent! Check your inbox.')
+    } else {
+      alert('Failed to send email. Please try again.')
+    }
+    setSendingTest(false)
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
     router.push('/')
@@ -164,8 +182,11 @@ async function addDriver(e: React.FormEvent) {
                 Trial: {trialDaysLeft}d left
               </span>
             )}
-<Link href="/account" className="text-sm text-slate-500 hover:text-slate-700">Account</Link>
-<button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
+<button onClick={sendTestEmail} disabled={sendingTest} className="text-sm bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60">
+              {sendingTest ? 'Sending...' : '📧 Email summary'}
+            </button>
+            <Link href="/account" className="text-sm text-slate-500 hover:text-slate-700">Account</Link>
+            <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
           </div>
         </div>
       </header>
