@@ -25,10 +25,11 @@ export async function GET(req: NextRequest) {
     .from('drivers')
     .select('*, carriers(company_name, email, stripe_status, trial_ends_at)')
 
-  if (!drivers) return NextResponse.json({ sent: 0 })
+if (!drivers) return NextResponse.json({ sent, checked: drivers.length, debug: debugLog })
 
   let sent = 0
   const today = new Date()
+  const debugLog: any[] = []
 
   for (const driver of drivers) {
     const carrier = driver.carriers as any
@@ -36,7 +37,17 @@ export async function GET(req: NextRequest) {
 
     const trialEnd = carrier.trial_ends_at ? new Date(carrier.trial_ends_at) : null
     const trialDaysLeft = trialEnd ? Math.round((trialEnd.getTime() - today.getTime()) / 86400000) : null
-    const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null && trialDaysLeft >= 0)
+const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null && trialDaysLeft >= 0)
+    debugLog.push({
+      driver: driver.name,
+      carrier_email: carrier?.email,
+      stripe_status: carrier?.stripe_status,
+      trial_ends_at: carrier?.trial_ends_at,
+      trialDaysLeft,
+      isActive,
+      cdl_expiry: driver.cdl_expiry,
+      cdl_days: daysUntil(driver.cdl_expiry),
+    })
     if (!isActive) continue
 
     const checks = [
