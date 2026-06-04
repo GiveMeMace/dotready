@@ -10,9 +10,9 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-sm">
-              <span className="text-white font-bold text-sm">DR</span>
+              <span className="text-white font-bold text-sm">CW</span>
             </div>
-            <span className="font-semibold text-slate-900">DotReady</span>
+            <span className="font-semibold text-slate-900">CDLWatch</span>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/auth" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">Sign in</Link>
@@ -32,7 +32,7 @@ export default function HomePage() {
             <span className="text-brand-600">expired DOT credentials</span>
           </h1>
           <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            DotReady tracks every driver's CDL, medical certificate, and MVR review date — and sends automatic alerts before anything expires.
+            CDLWatch tracks every driver's CDL, medical certificate, and MVR review date — and sends automatic alerts before anything expires.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/auth?mode=signup" className="btn-primary text-base px-8 py-3 shadow-lg shadow-brand-100">
@@ -67,7 +67,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { step: '01', icon: '📋', title: 'Add your drivers', desc: 'Enter each driver\'s CDL, medical cert, and MVR review dates. Takes about 2 minutes per driver.' },
-              { step: '02', icon: '🔔', title: 'We watch the dates', desc: 'DotReady monitors every expiry date 24/7 and alerts you at 60, 30, and 7 days out.' },
+              { step: '02', icon: '🔔', title: 'We watch the dates', desc: 'CDLWatch monitors every expiry date 24/7 and alerts you at 60, 30, and 7 days out.' },
               { step: '03', icon: '✅', title: 'Stay compliant', desc: 'Renew on time, avoid violations, keep your CSA score clean, and protect your revenue.' },
             ].map(s => (
               <div key={s.step} className="relative">
@@ -105,7 +105,7 @@ export default function HomePage() {
         </div>
       </section>
 
-{/* Pricing */}
+      {/* Pricing */}
       <section className="py-24 px-6" id="pricing">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-semibold text-slate-900 mb-3">Simple pricing</h2>
@@ -135,7 +135,7 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth?mode=signup" className="btn-secondary w-full text-center block text-sm py-3">
+              <Link href="/auth?mode=signup&plan=starter" className="btn-secondary w-full text-center block text-sm py-3">
                 Start free trial
               </Link>
             </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth?mode=signup" className="btn-primary w-full text-center block text-sm py-3">
+              <Link href="/auth?mode=signup&plan=pro" className="btn-primary w-full text-center block text-sm py-3">
                 Start free trial
               </Link>
             </div>
@@ -179,7 +179,7 @@ export default function HomePage() {
       <section className="py-24 px-6 bg-brand-600">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-semibold text-white mb-4">Ready to stop worrying about compliance?</h2>
-          <p className="text-brand-100 mb-8">Join carriers who use DotReady to stay compliant automatically.</p>
+          <p className="text-brand-100 mb-8">Join carriers who use CDLWatch to stay compliant automatically.</p>
           <Link href="/auth?mode=signup" className="inline-block bg-white text-brand-600 font-semibold px-8 py-3 rounded-lg hover:bg-brand-50 transition-colors">
             Start your free trial →
           </Link>
@@ -191,11 +191,11 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto flex items-center justify-between text-sm text-slate-400">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-brand-600 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-xs">DR</span>
+              <span className="text-white font-bold text-xs">CW</span>
             </div>
-            <span>DotReady</span>
+            <span>CDLWatch</span>
           </div>
-          <p>© {new Date().getFullYear()} DotReady. Built for American trucking.</p>
+          <p>© {new Date().getFullYear()} CDLWatch. Built for American trucking.</p>
         </div>
       </footer>
 
