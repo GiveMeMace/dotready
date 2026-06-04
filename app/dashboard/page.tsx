@@ -298,32 +298,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Header */}
-      <header className="bg-white border-b border-slate-100 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CW</span>
-            </div>
-            <div>
-              <p className="font-semibold text-slate-900 text-sm">{carrier?.company_name}</p>
-              <p className="text-xs text-slate-400">{carrier?.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {onTrial && (
-              <span className="text-xs bg-amber-50 text-amber-700 px-3 py-1 rounded-full font-medium">
-                Trial: {trialDaysLeft}d left
-              </span>
-            )}
-            <button onClick={sendTestEmail} disabled={sendingTest} className="text-sm bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60">
-              {sendingTest ? 'Sending...' : '📧 Email summary'}
-            </button>
-            <Link href="/account" className="text-sm text-slate-500 hover:text-slate-700">Account</Link>
-            <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
-          </div>
-        </div>
-      </header>
+      
 
       <main className="max-w-6xl mx-auto px-6 py-8">
 
@@ -354,8 +329,14 @@ export default function DashboardPage() {
 
         {/* Driver list header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-900">Driver roster</h2>
+          <div>
+            <h2 className="font-semibold text-slate-900">Driver roster</h2>
+            <p className="text-xs text-slate-400 mt-0.5">{carrier?.company_name}</p>
+          </div>
           <div className="flex items-center gap-3">
+            <button onClick={sendTestEmail} disabled={sendingTest} className="text-sm bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60">
+              {sendingTest ? 'Sending...' : '📧 Email summary'}
+            </button>
             <div className="flex items-center gap-2">
               <label className="text-xs text-slate-500 font-medium">Sort by</label>
               <select
