@@ -81,6 +81,16 @@ setDrivers(sorted)
     setLoading(false)
   }
 
+useEffect(() => {
+    const sessionOnly = sessionStorage.getItem('dotready_session_only')
+    if (sessionOnly === 'true') {
+      const handleClose = () => { supabase.auth.signOut() }
+      window.addEventListener('beforeunload', handleClose)
+      return () => window.removeEventListener('beforeunload', handleClose)
+    }
+    loadData()
+  }, [])
+
   useEffect(() => {
     loadData()
   }, [])
