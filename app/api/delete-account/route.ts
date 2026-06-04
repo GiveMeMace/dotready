@@ -9,7 +9,6 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Get carrier info
   const { data: carrier } = await serviceSupabase
     .from('carriers')
     .select('*')
@@ -18,7 +17,7 @@ export async function POST(req: NextRequest) {
 
   if (!carrier) return NextResponse.json({ error: 'Carrier not found' }, { status: 404 })
 
-  // Add email to used_trials so they can't get another free trial
+  // Add email to used_trials permanently
   await serviceSupabase
     .from('used_trials')
     .upsert({ email: carrier.email }, { onConflict: 'email' })
