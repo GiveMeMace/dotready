@@ -21,8 +21,8 @@ export default function ResetPasswordPage() {
     setLoading(true)
     const { error } = await supabase.auth.updateUser({ password })
     if (error) { setError(error.message); setLoading(false); return }
-setSuccess('Password updated! Redirecting to sign in...')
-setTimeout(() => router.push('/auth'), 2000)
+    setSuccess('Password updated! Redirecting to sign in...')
+    setTimeout(() => router.push('/auth'), 2000)
     setLoading(false)
   }
 
@@ -32,9 +32,9 @@ setTimeout(() => router.push('/auth'), 2000)
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DR</span>
+              <span className="text-white font-bold text-sm">CW</span>
             </div>
-            <span className="font-semibold text-slate-900">DotReady</span>
+            <span className="font-semibold text-slate-900">CDLWatch</span>
           </Link>
           <h1 className="text-2xl font-semibold text-slate-900">Set new password</h1>
           <p className="text-slate-500 text-sm mt-1">Choose a strong password for your account.</p>
