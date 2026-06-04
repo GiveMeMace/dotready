@@ -17,15 +17,13 @@ function AuthForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-const router = useRouter()
+  const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
     async function checkSession() {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.push('/dashboard')
-      }
+      if (session) router.push('/dashboard')
     }
     checkSession()
   }, [])
@@ -38,7 +36,7 @@ const router = useRouter()
 
     if (mode === 'forgot') {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://dotready.co/auth/reset'
+        redirectTo: 'https://cdlwatch.co/auth/reset'
       })
       if (error) { setError(error.message); setLoading(false); return }
       setSuccess('Check your email for a password reset link!')
@@ -52,7 +50,7 @@ const router = useRouter()
         password,
         options: {
           data: { company_name: company, phone },
-          emailRedirectTo: 'https://dotready.co/auth/confirm'
+          emailRedirectTo: 'https://cdlwatch.co/auth/confirm'
         }
       })
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
@@ -62,13 +60,11 @@ const router = useRouter()
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       if (signInError) { setError('Invalid email or password.'); setLoading(false); return }
-
       if (!rememberMe) {
-        sessionStorage.setItem('dotready_session_only', 'true')
+        sessionStorage.setItem('cdlwatch_session_only', 'true')
       } else {
-        sessionStorage.removeItem('dotready_session_only')
+        sessionStorage.removeItem('cdlwatch_session_only')
       }
-
       router.push('/dashboard')
     }
     setLoading(false)
@@ -79,9 +75,9 @@ const router = useRouter()
       <div className="text-center mb-8">
         <Link href="/" className="inline-flex items-center gap-2 mb-6">
           <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">DR</span>
+            <span className="text-white font-bold text-sm">CW</span>
           </div>
-          <span className="font-semibold text-slate-900">DotReady</span>
+          <span className="font-semibold text-slate-900">CDLWatch</span>
         </Link>
         <h1 className="text-2xl font-semibold text-slate-900">
           {mode === 'signup' ? 'Start your free trial' : mode === 'forgot' ? 'Reset your password' : 'Welcome back'}
