@@ -7,7 +7,7 @@ export function createClient() {
     {
       auth: {
         persistSession: true,
-        storageKey: 'dotready-auth',
+        storageKey: 'cdlwatch-auth',
         storage: typeof window !== 'undefined' ? window.localStorage : undefined,
       }
     }
