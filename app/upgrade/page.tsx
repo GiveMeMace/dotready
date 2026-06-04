@@ -53,19 +53,7 @@ export default function UpgradePage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-100 px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CW</span>
-            </div>
-            <span className="font-semibold text-slate-900">CDLWatch</span>
-          </Link>
-          {!trialExpired && (
-            <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700">← Back to dashboard</Link>
-          )}
-        </div>
-      </header>
+      
 
       <main className="max-w-4xl mx-auto px-6 py-16">
         {trialExpired && (
