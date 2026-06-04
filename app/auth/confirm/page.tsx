@@ -16,7 +16,7 @@ export default function ConfirmPage() {
         setStatus('error')
       } else {
         setStatus('success')
-setTimeout(() => router.push('/auth'), 3000)
+        setTimeout(() => router.push('/auth'), 3000)
       }
     }
     handleConfirm()
@@ -26,6 +26,12 @@ setTimeout(() => router.push('/auth'), 3000)
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
         <div className="card">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">CW</span>
+            </div>
+            <span className="font-semibold text-slate-900">CDLWatch</span>
+          </div>
           {status === 'loading' && (
             <>
               <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -41,10 +47,10 @@ setTimeout(() => router.push('/auth'), 3000)
                 <span className="text-2xl">✅</span>
               </div>
               <h1 className="text-xl font-semibold text-slate-900 mb-2">Email confirmed!</h1>
-              <p className="text-slate-500 text-sm mb-6">Welcome to DotReady. Redirecting you to your dashboard in 3 seconds...</p>
-<Link href="/auth" className="btn-primary text-sm">
-  Go to sign in
-</Link>
+              <p className="text-slate-500 text-sm mb-6">Welcome to CDLWatch. Redirecting you to sign in...</p>
+              <Link href="/auth" className="btn-primary text-sm">
+                Go to sign in
+              </Link>
             </>
           )}
           {status === 'error' && (
