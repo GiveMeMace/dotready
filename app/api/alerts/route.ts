@@ -20,10 +20,6 @@ function fmt(dateStr: string) {
 }
 
 export async function GET(req: NextRequest) {
-// Auth temporarily disabled for testing
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   const supabase = createServiceClient()
   const { data: drivers } = await supabase
     .from('drivers')
@@ -76,33 +72,19 @@ export async function GET(req: NextRequest) {
           <html>
           <body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
             <div style="max-width:600px;margin:40px auto;background:white;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.1);">
-              
-              <!-- Header -->
               <div style="background:#0284c7;padding:24px 32px;">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:32px;height:32px;background:white;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-                    <span style="color:#0284c7;font-weight:bold;font-size:14px;">DR</span>
-                  </div>
-                  <span style="color:white;font-weight:600;font-size:16px;">DotReady</span>
-                </div>
+                <span style="color:white;font-weight:600;font-size:16px;">DotReady</span>
               </div>
-
-              <!-- Body -->
               <div style="padding:32px;">
                 <h1 style="margin:0 0 8px;font-size:20px;color:#0f172a;">
                   ${isExpired ? '🚨 Compliance Alert' : days <= 7 ? '⚠️ Urgent Compliance Alert' : '🔔 Compliance Reminder'}
                 </h1>
-                <p style="margin:0 0 24px;color:#64748b;font-size:14px;">
-                  Hi ${carrier.company_name},
-                </p>
-
-                <!-- Alert card -->
+                <p style="margin:0 0 24px;color:#64748b;font-size:14px;">Hi ${carrier.company_name},</p>
                 <div style="background:${bgColor};border-left:4px solid ${color};border-radius:8px;padding:20px;margin-bottom:24px;">
                   <p style="margin:0 0 4px;font-weight:600;color:#0f172a;font-size:16px;">${driver.name}</p>
                   <p style="margin:0 0 8px;color:#475569;font-size:14px;">${check.label}</p>
                   <p style="margin:0;font-weight:600;color:${color};font-size:14px;">${statusText}</p>
                 </div>
-
                 <p style="color:#475569;font-size:14px;line-height:1.6;margin:0 0 24px;">
                   ${isExpired
                     ? 'This credential has expired. Your driver may be placed out of service at the next inspection. Please renew immediately.'
@@ -110,21 +92,14 @@ export async function GET(req: NextRequest) {
                     ? 'This credential expires very soon. Please take action immediately to avoid an out-of-service order.'
                     : 'This is an advance notice to help you stay ahead of compliance deadlines.'}
                 </p>
-
-                <!-- CTA -->
                 <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
                    style="display:inline-block;background:#0284c7;color:white;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
                   View dashboard →
                 </a>
               </div>
-
-              <!-- Footer -->
               <div style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 32px;">
-                <p style="margin:0;color:#94a3b8;font-size:12px;">
-                  DotReady · dotready.co · You're receiving this because you have an active DotReady account.
-                </p>
+                <p style="margin:0;color:#94a3b8;font-size:12px;">DotReady · dotready.co</p>
               </div>
-
             </div>
           </body>
           </html>
