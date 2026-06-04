@@ -2,7 +2,7 @@
 const nextConfig = {
   experimental: {
     serverActions: {
-      allowedOrigins: ['dotready.co', 'dot-ready.vercel.app']
+      allowedOrigins: ['cdlwatch.co', 'cdlwatch.vercel.app']
     }
   }
 }
