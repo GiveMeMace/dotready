@@ -48,7 +48,7 @@ export default function DashboardPage() {
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
   const [form, setForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
   const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
-const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [sendingTest, setSendingTest] = useState(false)
   const [sortBy, setSortBy] = useState<'status' | 'alpha'>('status')
   const router = useRouter()
@@ -72,14 +72,13 @@ const [saving, setSaving] = useState(false)
     }
 
     setCarrier(carrierData)
-
     const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id)
     setDrivers(driverData || [])
     setLoading(false)
   }
 
   useEffect(() => {
-    const sessionOnly = sessionStorage.getItem('dotready_session_only')
+    const sessionOnly = sessionStorage.getItem('cdlwatch_session_only')
     if (sessionOnly === 'true') {
       const handleClose = () => { supabase.auth.signOut() }
       window.addEventListener('beforeunload', handleClose)
@@ -191,7 +190,7 @@ const [saving, setSaving] = useState(false)
   return (
     <div className="min-h-screen bg-slate-50">
 
-{/* Add Driver Modal */}
+      {/* Add Driver Modal */}
       {showAdd && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
@@ -292,7 +291,7 @@ const [saving, setSaving] = useState(false)
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">DR</span>
+              <span className="text-white font-bold text-sm">CW</span>
             </div>
             <div>
               <p className="font-semibold text-slate-900 text-sm">{carrier?.company_name}</p>
@@ -342,7 +341,7 @@ const [saving, setSaving] = useState(false)
         )}
 
         {/* Driver list header */}
-<div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-slate-900">Driver roster</h2>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
@@ -359,7 +358,6 @@ const [saving, setSaving] = useState(false)
             <button onClick={() => setShowAdd(true)} className="btn-primary text-sm px-4 py-2">+ Add driver</button>
           </div>
         </div>
-
 
         {/* Drivers table */}
         {drivers.length === 0 ? (
