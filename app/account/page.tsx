@@ -109,20 +109,7 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-100 px-6 py-4">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CW</span>
-            </div>
-            <span className="font-semibold text-slate-900">CDLWatch</span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700">← Back to dashboard</Link>
-            <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
-          </div>
-        </div>
-      </header>
+      
 
       <main className="max-w-3xl mx-auto px-6 py-10 space-y-6">
         <h1 className="text-2xl font-semibold text-slate-900">Account settings</h1>
