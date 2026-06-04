@@ -45,19 +45,20 @@ export default function DashboardPage() {
   const [carrier, setCarrier] = useState<Carrier | null>(null)
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
+  const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
   const [form, setForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
-const [saving, setSaving] = useState(false)
+  const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
+  const [saving, setSaving] = useState(false)
   const [sendingTest, setSendingTest] = useState(false)
   const router = useRouter()
   const supabase = createClient()
 
-async function loadData() {
+  async function loadData() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/auth'); return }
     const user = session.user
 
     let { data: carrierData } = await supabase.from('carriers').select('*').eq('id', user.id).single()
-
     if (!carrierData) {
       const { data: newCarrier } = await supabase.from('carriers').insert({
         id: user.id,
@@ -70,20 +71,21 @@ async function loadData() {
     }
 
     setCarrier(carrierData)
-const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id)
-const sorted = (driverData || []).sort((a, b) => {
-  const aWorst = worstDays(a)
-  const bWorst = worstDays(b)
-  if (aWorst === 999 && bWorst === 999) return 0
-  if (aWorst === 999) return 1
-  if (bWorst === 999) return -1
-  return aWorst - bWorst
-})
-setDrivers(sorted)
+
+    const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id)
+    const sorted = (driverData || []).sort((a, b) => {
+      const aWorst = worstDays(a)
+      const bWorst = worstDays(b)
+      if (aWorst === 999 && bWorst === 999) return 0
+      if (aWorst === 999) return 1
+      if (bWorst === 999) return -1
+      return aWorst - bWorst
+    })
+    setDrivers(sorted)
     setLoading(false)
   }
 
-useEffect(() => {
+  useEffect(() => {
     const sessionOnly = sessionStorage.getItem('dotready_session_only')
     if (sessionOnly === 'true') {
       const handleClose = () => { supabase.auth.signOut() }
@@ -97,7 +99,7 @@ useEffect(() => {
     loadData()
   }, [])
 
-async function addDriver(e: React.FormEvent) {
+  async function addDriver(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
 
@@ -108,12 +110,12 @@ async function addDriver(e: React.FormEvent) {
       return
     }
 
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { setSaving(false); return }
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setSaving(false); return }
 
     const { data, error } = await supabase
       .from('drivers')
-      .insert({ ...form, carrier_id: user.id })
+      .insert({ ...form, carrier_id: session.user.id })
       .select()
 
     if (error) {
@@ -127,13 +129,43 @@ async function addDriver(e: React.FormEvent) {
     loadData()
   }
 
+  function openEdit(driver: Driver) {
+    setEditingDriver(driver)
+    setEditForm({
+      name: driver.name || '',
+      email: driver.email || '',
+      phone: driver.phone || '',
+      cdl_expiry: driver.cdl_expiry || '',
+      medical_expiry: driver.medical_expiry || '',
+      mvr_due: driver.mvr_due || '',
+    })
+  }
+
+  async function saveEdit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editingDriver) return
+    setSaving(true)
+    const { error } = await supabase
+      .from('drivers')
+      .update(editForm)
+      .eq('id', editingDriver.id)
+    if (error) {
+      console.error('Error updating driver:', error.message)
+      setSaving(false)
+      return
+    }
+    setEditingDriver(null)
+    setSaving(false)
+    loadData()
+  }
+
   async function deleteDriver(id: string) {
     if (!confirm('Remove this driver?')) return
     await supabase.from('drivers').delete().eq('id', id)
     loadData()
   }
 
-async function sendTestEmail() {
+  async function sendTestEmail() {
     setSendingTest(true)
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
@@ -165,6 +197,56 @@ async function sendTestEmail() {
 
   return (
     <div className="min-h-screen bg-slate-50">
+
+      {/* Edit Modal */}
+      {editingDriver && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="font-semibold text-slate-900 text-lg">Edit driver</h2>
+              <button onClick={() => setEditingDriver(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">✕</button>
+            </div>
+            <form onSubmit={saveEdit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label className="block text-xs text-slate-500 mb-1">Full name *</label>
+                  <input className="input" value={editForm.name} onChange={e => setEditForm({...editForm, name: e.target.value})} required />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Email</label>
+                  <input className="input" type="email" value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Phone</label>
+                  <input className="input" value={editForm.phone} onChange={e => setEditForm({...editForm, phone: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">CDL expiry</label>
+                  <input className="input" type="date" value={editForm.cdl_expiry} onChange={e => setEditForm({...editForm, cdl_expiry: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">Medical cert expiry</label>
+                  <input className="input" type="date" value={editForm.medical_expiry} onChange={e => setEditForm({...editForm, medical_expiry: e.target.value})} />
+                </div>
+                <div>
+                  <label className="block text-xs text-slate-500 mb-1">MVR review due</label>
+                  <input className="input" type="date" value={editForm.mvr_due} onChange={e => setEditForm({...editForm, mvr_due: e.target.value})} />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="submit" disabled={saving} className="btn-primary text-sm flex-1">
+                  {saving ? 'Saving...' : 'Save changes'}
+                </button>
+                <button type="button" onClick={() => setEditingDriver(null)} className="btn-secondary text-sm flex-1">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -182,7 +264,7 @@ async function sendTestEmail() {
                 Trial: {trialDaysLeft}d left
               </span>
             )}
-<button onClick={sendTestEmail} disabled={sendingTest} className="text-sm bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60">
+            <button onClick={sendTestEmail} disabled={sendingTest} className="text-sm bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60">
               {sendingTest ? 'Sending...' : '📧 Email summary'}
             </button>
             <Link href="/account" className="text-sm text-slate-500 hover:text-slate-700">Account</Link>
@@ -192,6 +274,8 @@ async function sendTestEmail() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+
+        {/* Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total drivers', value: drivers.length, color: 'text-slate-900' },
@@ -206,7 +290,8 @@ async function sendTestEmail() {
           ))}
         </div>
 
-{carrier?.stripe_status !== 'active' && drivers.length >= 8 && (
+        {/* Trial warning */}
+        {carrier?.stripe_status !== 'active' && drivers.length >= 8 && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
             <p className="text-sm text-amber-700 font-medium">
               {drivers.length >= 10 ? '🚫 Driver limit reached — upgrade to add more.' : `⚠️ You're using ${drivers.length}/10 drivers on your trial.`}
@@ -215,11 +300,13 @@ async function sendTestEmail() {
           </div>
         )}
 
+        {/* Driver list header */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-slate-900">Driver roster</h2>
           <button onClick={() => setShowAdd(!showAdd)} className="btn-primary text-sm px-4 py-2">+ Add driver</button>
         </div>
 
+        {/* Add driver form */}
         {showAdd && (
           <div className="card mb-6">
             <h3 className="font-medium text-slate-900 mb-4">New driver</h3>
@@ -238,6 +325,7 @@ async function sendTestEmail() {
           </div>
         )}
 
+        {/* Drivers table */}
         {drivers.length === 0 ? (
           <div className="card text-center py-12">
             <p className="text-slate-400 mb-4">No drivers yet. Add your first driver to get started.</p>
@@ -276,7 +364,10 @@ async function sendTestEmail() {
                           : <span className="text-xs font-medium text-green-600">Compliant</span>}
                         </td>
                         <td className="px-4 py-3 text-right">
-                          <button onClick={() => deleteDriver(driver.id)} className="text-xs text-slate-400 hover:text-red-500">Remove</button>
+                          <div className="flex items-center justify-end gap-3">
+                            <button onClick={() => openEdit(driver)} className="text-xs text-brand-600 hover:text-brand-700 font-medium">Edit</button>
+                            <button onClick={() => deleteDriver(driver.id)} className="text-xs text-slate-400 hover:text-red-500">Remove</button>
+                          </div>
                         </td>
                       </tr>
                     )
