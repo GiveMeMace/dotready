@@ -20,15 +20,21 @@ export default function UpgradePage() {
     load()
   }, [])
 
-  async function subscribe(plan: 'starter' | 'pro') {
+ async function subscribe(plan: 'starter' | 'pro') {
     setLoading(plan)
     const priceId = plan === 'starter'
       ? 'price_1TeiR41Y8Endw8fkf6ZgqMhs'
       : 'price_1TeiSE1Y8Endw8fkS3IQn9VU'
 
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { router.push('/auth'); return }
+
     const res = await fetch('/api/checkout', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
       body: JSON.stringify({ priceId })
     })
 
