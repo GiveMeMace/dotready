@@ -3,31 +3,54 @@ import { createClient } from '@/lib/supabase-server'
 import { stripe } from '@/lib/stripe'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Not logged in' }, { status: 401 })
+    }
 
-  const { priceId } = await req.json()
-  if (!priceId) return NextResponse.json({ error: 'Missing priceId' }, { status: 400 })
+    const body = await req.json()
+    const { priceId } = body
+    
+    if (!priceId) {
+      return NextResponse.json({ error: 'Missing priceId' }, { status: 400 })
+    }
 
-  const { data: carrier } = await supabase.from('carriers').select('*').eq('id', user.id).single()
+    const { data: carrier } = await supabase
+      .from('carriers')
+      .select('*')
+      .eq('id', user.id)
+      .single()
 
-  let customerId = carrier?.stripe_customer_id
-  if (!customerId) {
-    const customer = await stripe.customers.create({ email: user.email!, name: carrier?.company_name })
-    customerId = customer.id
-    await supabase.from('carriers').update({ stripe_customer_id: customerId }).eq('id', user.id)
+    let customerId = carrier?.stripe_customer_id
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        email: user.email!,
+        name: carrier?.company_name
+      })
+      customerId = customer.id
+      await supabase
+        .from('carriers')
+        .update({ stripe_customer_id: customerId })
+        .eq('id', user.id)
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/upgrade`,
+    })
+
+    return NextResponse.json({ url: session.url })
+
+  } catch (error: any) {
+    console.error('Checkout error:', error)
+    return NextResponse.json({ error: error.message || 'Unknown error' }, { status: 500 })
   }
-
-  const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    mode: 'subscription',
-    payment_method_types: ['card'],
-    line_items: [{ price: priceId, quantity: 1 }],
-    subscription_data: { trial_period_days: 14 },
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/upgrade`,
-  })
-
-  return NextResponse.json({ url: session.url })
 }
