@@ -19,6 +19,10 @@ function fmt(dateStr: string) {
 }
 
 export async function GET(req: NextRequest) {
+  const authHeader = req.headers.get('authorization')
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
   const supabase = createServiceClient()
 
   // Fetch drivers and carriers separately
@@ -139,5 +143,5 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  return NextResponse.json({ sent, checked: drivers.length, debug: debugLog })
+return NextResponse.json({ sent, checked: drivers.length })
 }
