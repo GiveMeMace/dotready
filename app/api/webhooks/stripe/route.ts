@@ -18,15 +18,22 @@ export async function POST(req: NextRequest) {
 
   if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.created') {
     const sub = event.data.object as Stripe.Subscription
+    const priceId = sub.items.data[0]?.price.id
+    const plan = priceId === process.env.STRIPE_PRICE_ID_STARTER ? 'starter' : 'pro'
+
     await supabase.from('carriers')
-      .update({ stripe_status: sub.status, stripe_subscription_id: sub.id })
+      .update({
+        stripe_status: sub.status,
+        stripe_subscription_id: sub.id,
+        stripe_plan: plan,
+      })
       .eq('stripe_customer_id', sub.customer as string)
   }
 
   if (event.type === 'customer.subscription.deleted') {
     const sub = event.data.object as Stripe.Subscription
     await supabase.from('carriers')
-      .update({ stripe_status: 'canceled' })
+      .update({ stripe_status: 'canceled', stripe_plan: null })
       .eq('stripe_customer_id', sub.customer as string)
   }
 
