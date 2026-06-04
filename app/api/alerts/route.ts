@@ -3,7 +3,6 @@ import { createServiceClient } from '@/lib/supabase-server'
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const ALERT_DAYS = [60, 30, 7]
 
 function daysUntil(dateStr: string) {
   if (!dateStr) return null
@@ -21,18 +20,37 @@ function fmt(dateStr: string) {
 
 export async function GET(req: NextRequest) {
   const supabase = createServiceClient()
-  const { data: drivers } = await supabase
-    .from('drivers')
-    .select('*, carriers(company_name, email, stripe_status, trial_ends_at)')
 
-  if (!drivers) return NextResponse.json({ sent: 0, checked: 0, debug: 'no drivers found' })
+  // Fetch drivers and carriers separately
+  const { data: drivers, error: driversError } = await supabase.from('drivers').select('*')
+  const { data: carriers, error: carriersError } = await supabase.from('carriers').select('*')
+
+  if (driversError || carriersError) {
+    return NextResponse.json({
+      sent: 0,
+      checked: 0,
+      debug: {
+        driversError: driversError?.message,
+        carriersError: carriersError?.message,
+      }
+    })
+  }
+
+  if (!drivers || drivers.length === 0) {
+    return NextResponse.json({ sent: 0, checked: 0, debug: 'no drivers in database' })
+  }
+
+  if (!carriers || carriers.length === 0) {
+    return NextResponse.json({ sent: 0, checked: 0, debug: 'no carriers in database' })
+  }
 
   let sent = 0
   const today = new Date()
   const debugLog: any[] = []
+  const ALERT_DAYS = [60, 30, 7]
 
   for (const driver of drivers) {
-    const carrier = driver.carriers as any
+    const carrier = carriers.find(c => c.id === driver.carrier_id)
     if (!carrier?.email) continue
 
     const trialEnd = carrier.trial_ends_at ? new Date(carrier.trial_ends_at) : null
@@ -41,16 +59,11 @@ export async function GET(req: NextRequest) {
 
     debugLog.push({
       driver: driver.name,
-      carrier_email: carrier?.email,
-      stripe_status: carrier?.stripe_status,
-      trial_ends_at: carrier?.trial_ends_at,
-      trialDaysLeft,
+      carrier_email: carrier.email,
       isActive,
-      cdl_expiry: driver.cdl_expiry,
+      trialDaysLeft,
       cdl_days: daysUntil(driver.cdl_expiry),
-      medical_expiry: driver.medical_expiry,
       medical_days: daysUntil(driver.medical_expiry),
-      mvr_due: driver.mvr_due,
       mvr_days: daysUntil(driver.mvr_due),
     })
 
@@ -66,12 +79,12 @@ export async function GET(req: NextRequest) {
       if (!check.date) continue
       const days = daysUntil(check.date)
       if (days === null) continue
-      if (!ALERT_DAYS.includes(days) && days !== 0 && days > 0) continue
+      if (!ALERT_DAYS.includes(days) && days >= 0) continue
       if (days > 60) continue
 
       const isExpired = days < 0
       const subject = isExpired
-        ? `URGENT: ${driver.name}'s ${check.label} has EXPIRED — Action required`
+        ? `URGENT: ${driver.name}'s ${check.label} has EXPIRED`
         : `Alert: ${driver.name}'s ${check.label} expires in ${days} day${days === 1 ? '' : 's'}`
 
       const color = isExpired ? '#dc2626' : days <= 7 ? '#d97706' : '#0284c7'
@@ -94,7 +107,7 @@ export async function GET(req: NextRequest) {
               </div>
               <div style="padding:32px;">
                 <h1 style="margin:0 0 8px;font-size:20px;color:#0f172a;">
-                  ${isExpired ? '🚨 Compliance Alert' : days <= 7 ? '⚠️ Urgent Compliance Alert' : '🔔 Compliance Reminder'}
+                  ${isExpired ? '🚨 Compliance Alert' : days <= 7 ? '⚠️ Urgent Alert' : '🔔 Compliance Reminder'}
                 </h1>
                 <p style="margin:0 0 24px;color:#64748b;font-size:14px;">Hi ${carrier.company_name},</p>
                 <div style="background:${bgColor};border-left:4px solid ${color};border-radius:8px;padding:20px;margin-bottom:24px;">
@@ -104,9 +117,9 @@ export async function GET(req: NextRequest) {
                 </div>
                 <p style="color:#475569;font-size:14px;line-height:1.6;margin:0 0 24px;">
                   ${isExpired
-                    ? 'This credential has expired. Your driver may be placed out of service at the next inspection. Please renew immediately.'
+                    ? 'This credential has expired. Your driver may be placed out of service. Please renew immediately.'
                     : days <= 7
-                    ? 'This credential expires very soon. Please take action immediately to avoid an out-of-service order.'
+                    ? 'This credential expires very soon. Please take action immediately.'
                     : 'This is an advance notice to help you stay ahead of compliance deadlines.'}
                 </p>
                 <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
