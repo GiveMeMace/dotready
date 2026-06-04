@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     .from('drivers')
     .select('*, carriers(company_name, email, stripe_status, trial_ends_at)')
 
-if (!drivers) return NextResponse.json({ sent, checked: drivers.length, debug: debugLog })
+  if (!drivers) return NextResponse.json({ sent: 0, checked: 0, debug: 'no drivers found' })
 
   let sent = 0
   const today = new Date()
@@ -37,7 +37,8 @@ if (!drivers) return NextResponse.json({ sent, checked: drivers.length, debug: d
 
     const trialEnd = carrier.trial_ends_at ? new Date(carrier.trial_ends_at) : null
     const trialDaysLeft = trialEnd ? Math.round((trialEnd.getTime() - today.getTime()) / 86400000) : null
-const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null && trialDaysLeft >= 0)
+    const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null && trialDaysLeft >= 0)
+
     debugLog.push({
       driver: driver.name,
       carrier_email: carrier?.email,
@@ -47,7 +48,12 @@ const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null &
       isActive,
       cdl_expiry: driver.cdl_expiry,
       cdl_days: daysUntil(driver.cdl_expiry),
+      medical_expiry: driver.medical_expiry,
+      medical_days: daysUntil(driver.medical_expiry),
+      mvr_due: driver.mvr_due,
+      mvr_days: daysUntil(driver.mvr_due),
     })
+
     if (!isActive) continue
 
     const checks = [
@@ -103,7 +109,7 @@ const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null &
                     ? 'This credential expires very soon. Please take action immediately to avoid an out-of-service order.'
                     : 'This is an advance notice to help you stay ahead of compliance deadlines.'}
                 </p>
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard"
                    style="display:inline-block;background:#0284c7;color:white;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;">
                   View dashboard →
                 </a>
@@ -120,5 +126,5 @@ const isActive = carrier.stripe_status === 'active' || (trialDaysLeft !== null &
     }
   }
 
-  return NextResponse.json({ sent, checked: drivers.length })
+  return NextResponse.json({ sent, checked: drivers.length, debug: debugLog })
 }
