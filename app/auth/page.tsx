@@ -73,12 +73,6 @@ function AuthForm() {
   return (
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
-        <Link href="/" className="inline-flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">CW</span>
-          </div>
-          <span className="font-semibold text-slate-900">CDLWatch</span>
-        </Link>
         <h1 className="text-2xl font-semibold text-slate-900">
           {mode === 'signup' ? 'Start your free trial' : mode === 'forgot' ? 'Reset your password' : 'Welcome back'}
         </h1>
