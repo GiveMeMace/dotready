@@ -23,8 +23,8 @@ export default function UpgradePage() {
   async function subscribe(plan: 'starter' | 'pro') {
     setLoading(plan)
     const priceId = plan === 'starter'
-      ? process.env.NEXT_PUBLIC_STRIPE_PRICE_STARTER
-      : process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO
+      ? 'price_1TeiR41Y8Endw8fkf6ZgqMhs'
+      : 'price_1TeiSE1Y8Endw8fkS3IQn9VU'
 
     const res = await fetch('/api/checkout', {
       method: 'POST',
