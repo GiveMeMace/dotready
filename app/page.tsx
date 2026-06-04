@@ -121,8 +121,8 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth?mode=signup&plan=starter" className="btn-secondary w-full text-center block text-sm py-3">
-                Start free trial
+              <Link href="/upgrade" className="btn-secondary w-full text-center block text-sm py-3">
+                Subscribe — $39/month
               </Link>
             </div>
 
@@ -151,8 +151,8 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
-              <Link href="/auth?mode=signup&plan=pro" className="btn-primary w-full text-center block text-sm py-3">
-                Start free trial
+              <Link href="/upgrade" className="btn-primary w-full text-center block text-sm py-3">
+                Subscribe — $79/month
               </Link>
             </div>
 
@@ -167,7 +167,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-semibold text-white mb-4">Ready to stop worrying about compliance?</h2>
           <p className="text-brand-100 mb-8">Join carriers who use CDLWatch to stay compliant automatically.</p>
           <Link href="/auth?mode=signup" className="inline-block bg-white text-brand-600 font-semibold px-8 py-3 rounded-lg hover:bg-brand-50 transition-colors">
-            Start your free trial →
+            Start free trial →
           </Link>
         </div>
       </section>
