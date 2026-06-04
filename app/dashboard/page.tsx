@@ -48,8 +48,9 @@ export default function DashboardPage() {
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
   const [form, setForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
   const [editForm, setEditForm] = useState({ name: '', email: '', phone: '', cdl_expiry: '', medical_expiry: '', mvr_due: '' })
-  const [saving, setSaving] = useState(false)
+const [saving, setSaving] = useState(false)
   const [sendingTest, setSendingTest] = useState(false)
+  const [sortBy, setSortBy] = useState<'status' | 'alpha'>('status')
   const router = useRouter()
   const supabase = createClient()
 
@@ -73,15 +74,7 @@ export default function DashboardPage() {
     setCarrier(carrierData)
 
     const { data: driverData } = await supabase.from('drivers').select('*').eq('carrier_id', user.id)
-    const sorted = (driverData || []).sort((a, b) => {
-      const aWorst = worstDays(a)
-      const bWorst = worstDays(b)
-      if (aWorst === 999 && bWorst === 999) return 0
-      if (aWorst === 999) return 1
-      if (bWorst === 999) return -1
-      return aWorst - bWorst
-    })
-    setDrivers(sorted)
+    setDrivers(driverData || [])
     setLoading(false)
   }
 
@@ -349,9 +342,22 @@ export default function DashboardPage() {
         )}
 
         {/* Driver list header */}
-        <div className="flex items-center justify-between mb-4">
+<div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold text-slate-900">Driver roster</h2>
-          <button onClick={() => setShowAdd(!showAdd)} className="btn-primary text-sm px-4 py-2">+ Add driver</button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-slate-500 font-medium">Sort by</label>
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value as 'status' | 'alpha')}
+                className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+              >
+                <option value="status">Status</option>
+                <option value="alpha">Alphabetical</option>
+              </select>
+            </div>
+            <button onClick={() => setShowAdd(true)} className="btn-primary text-sm px-4 py-2">+ Add driver</button>
+          </div>
         </div>
 
 
@@ -376,7 +382,15 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {drivers.map(driver => {
+                  {[...drivers].sort((a, b) => {
+                    if (sortBy === 'alpha') return a.name.localeCompare(b.name)
+                    const aWorst = worstDays(a)
+                    const bWorst = worstDays(b)
+                    if (aWorst === 999 && bWorst === 999) return 0
+                    if (aWorst === 999) return 1
+                    if (bWorst === 999) return -1
+                    return aWorst - bWorst
+                  }).map(driver => {
                     const worst = worstDays(driver)
                     const rowColor = worst < 0 ? 'bg-red-50/30' : worst <= 30 ? 'bg-amber-50/30' : ''
                     return (
