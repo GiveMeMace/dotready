@@ -30,12 +30,6 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CW</span>
-            </div>
-            <span className="font-semibold text-slate-900">CDLWatch</span>
-          </Link>
           <h1 className="text-2xl font-semibold text-slate-900">Set new password</h1>
           <p className="text-slate-500 text-sm mt-1">Choose a strong password for your account.</p>
         </div>
