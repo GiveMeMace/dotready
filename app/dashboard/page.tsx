@@ -50,9 +50,10 @@ export default function DashboardPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  async function loadData() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) { router.push('/auth'); return }
+async function loadData() {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { router.push('/auth'); return }
+    const user = session.user
 
     let { data: carrierData } = await supabase.from('carriers').select('*').eq('id', user.id).single()
 
