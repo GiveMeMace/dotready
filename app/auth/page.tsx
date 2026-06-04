@@ -13,6 +13,7 @@ function AuthForm() {
   const [password, setPassword] = useState('')
   const [company, setCompany] = useState('')
   const [phone, setPhone] = useState('')
+  const [rememberMe, setRememberMe] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -51,6 +52,13 @@ function AuthForm() {
     } else {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       if (signInError) { setError('Invalid email or password.'); setLoading(false); return }
+
+      if (!rememberMe) {
+        sessionStorage.setItem('dotready_session_only', 'true')
+      } else {
+        sessionStorage.removeItem('dotready_session_only')
+      }
+
       router.push('/dashboard')
     }
     setLoading(false)
@@ -69,7 +77,7 @@ function AuthForm() {
           {mode === 'signup' ? 'Start your free trial' : mode === 'forgot' ? 'Reset your password' : 'Welcome back'}
         </h1>
         <p className="text-slate-500 text-sm mt-1">
-          {mode === 'signup' ? '14 days free. No credit card required.' : mode === 'forgot' ? 'Enter your email and we\'ll send a reset link.' : 'Sign in to your dashboard.'}
+          {mode === 'signup' ? '14 days free. No credit card required.' : mode === 'forgot' ? "Enter your email and we'll send a reset link." : 'Sign in to your dashboard.'}
         </p>
       </div>
 
@@ -102,6 +110,21 @@ function AuthForm() {
                 )}
               </div>
               <input className="input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
+            </div>
+          )}
+
+          {mode === 'login' && (
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                checked={rememberMe}
+                onChange={e => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-300 text-brand-600 cursor-pointer"
+              />
+              <label htmlFor="rememberMe" className="text-sm text-slate-600 cursor-pointer select-none">
+                Remember me
+              </label>
             </div>
           )}
 
