@@ -19,7 +19,6 @@ export default function AccountPage() {
   const [saving, setSaving] = useState(false)
   const [companyName, setCompanyName] = useState('')
   const [phone, setPhone] = useState('')
-  const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [profileSuccess, setProfileSuccess] = useState('')
@@ -36,11 +35,10 @@ export default function AccountPage() {
     loadData()
   }, [])
 
-async function loadData() {
+  async function loadData() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/auth'); return }
-    const user = session.user
-    const { data } = await supabase.from('carriers').select('*').eq('id', user.id).single()
+    const { data } = await supabase.from('carriers').select('*').eq('id', session.user.id).single()
     if (data) {
       setCarrier(data)
       setCompanyName(data.company_name || '')
@@ -54,12 +52,12 @@ async function loadData() {
     setSaving(true)
     setProfileError('')
     setProfileSuccess('')
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
     const { error } = await supabase.from('carriers').update({
       company_name: companyName,
       phone,
-    }).eq('id', user.id)
+    }).eq('id', session.user.id)
     if (error) { setProfileError(error.message); setSaving(false); return }
     setProfileSuccess('Profile updated successfully!')
     setSaving(false)
@@ -76,7 +74,6 @@ async function loadData() {
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) { setPasswordError(error.message); setSaving(false); return }
     setPasswordSuccess('Password updated successfully!')
-    setCurrentPassword('')
     setNewPassword('')
     setConfirmPassword('')
     setSaving(false)
@@ -91,7 +88,7 @@ async function loadData() {
     const res = await fetch('/api/delete-account', { method: 'POST' })
     if (res.ok) {
       await supabase.auth.signOut()
-      router.push('/?deleted=true')
+      router.push('/')
     } else {
       const data = await res.json()
       alert('Error deleting account: ' + data.error)
@@ -112,17 +109,14 @@ async function loadData() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">DR</span>
-              </div>
-              <span className="font-semibold text-slate-900">DotReady</span>
-            </Link>
-          </div>
+          <Link href="/dashboard" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">CW</span>
+            </div>
+            <span className="font-semibold text-slate-900">CDLWatch</span>
+          </Link>
           <div className="flex items-center gap-4">
             <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-700">← Back to dashboard</Link>
             <button onClick={signOut} className="text-sm text-slate-500 hover:text-slate-700">Sign out</button>
@@ -208,7 +202,7 @@ async function loadData() {
         {/* Danger zone */}
         <div className="card border border-red-100">
           <h2 className="font-semibold text-red-600 mb-4">Danger zone</h2>
-          
+
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <p className="text-sm font-medium text-slate-700">Sign out of all devices</p>
@@ -226,10 +220,7 @@ async function loadData() {
                 <p className="text-xs text-slate-400 mt-0.5">Permanently delete your account and all driver data. This cannot be undone.</p>
               </div>
               {!showDeleteConfirm && (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="text-sm border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors"
-                >
+                <button onClick={() => setShowDeleteConfirm(true)} className="text-sm border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors">
                   Delete account
                 </button>
               )}
