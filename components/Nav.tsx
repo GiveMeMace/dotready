@@ -51,7 +51,7 @@ export default function Nav() {
       <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
 
         {/* Logo */}
-        <Link href={session ? '/dashboard' : '/'} className="flex items-center gap-2 shrink-0">
+        <Link href="/" className="flex items-center gap-2 shrink-0">
           <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-sm">
             <span className="text-white font-bold text-sm">CW</span>
           </div>
