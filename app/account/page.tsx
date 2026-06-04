@@ -26,6 +26,9 @@ export default function AccountPage() {
   const [profileError, setProfileError] = useState('')
   const [passwordSuccess, setPasswordSuccess] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const router = useRouter()
   const supabase = createClient()
 
@@ -77,6 +80,23 @@ async function loadData() {
     setNewPassword('')
     setConfirmPassword('')
     setSaving(false)
+  }
+
+  async function deleteAccount() {
+    if (deleteConfirmText !== 'DELETE') {
+      alert('Please type DELETE to confirm.')
+      return
+    }
+    setDeleting(true)
+    const res = await fetch('/api/delete-account', { method: 'POST' })
+    if (res.ok) {
+      await supabase.auth.signOut()
+      router.push('/?deleted=true')
+    } else {
+      const data = await res.json()
+      alert('Error deleting account: ' + data.error)
+      setDeleting(false)
+    }
   }
 
   async function signOut() {
@@ -188,7 +208,8 @@ async function loadData() {
         {/* Danger zone */}
         <div className="card border border-red-100">
           <h2 className="font-semibold text-red-600 mb-4">Danger zone</h2>
-          <div className="flex items-center justify-between">
+          
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <p className="text-sm font-medium text-slate-700">Sign out of all devices</p>
               <p className="text-xs text-slate-400 mt-0.5">You'll need to sign in again on all devices.</p>
@@ -197,8 +218,61 @@ async function loadData() {
               Sign out
             </button>
           </div>
-        </div>
 
+          <div className="pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm font-medium text-slate-700">Delete account</p>
+                <p className="text-xs text-slate-400 mt-0.5">Permanently delete your account and all driver data. This cannot be undone.</p>
+              </div>
+              {!showDeleteConfirm && (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-sm border border-red-300 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition-colors"
+                >
+                  Delete account
+                </button>
+              )}
+            </div>
+
+            {showDeleteConfirm && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+                <p className="text-sm text-red-700 font-medium">⚠️ This will permanently delete:</p>
+                <ul className="text-sm text-red-600 space-y-1 list-disc list-inside">
+                  <li>Your account and login credentials</li>
+                  <li>All driver records and compliance data</li>
+                  <li>Your free trial (cannot be restarted)</li>
+                </ul>
+                <div>
+                  <label className="block text-sm font-medium text-red-700 mb-1">
+                    Type <span className="font-bold">DELETE</span> to confirm
+                  </label>
+                  <input
+                    className="input border-red-200 focus:ring-red-400"
+                    placeholder="DELETE"
+                    value={deleteConfirmText}
+                    onChange={e => setDeleteConfirmText(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={deleteAccount}
+                    disabled={deleting || deleteConfirmText !== 'DELETE'}
+                    className="text-sm bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50 font-medium"
+                  >
+                    {deleting ? 'Deleting...' : 'Permanently delete account'}
+                  </button>
+                  <button
+                    onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText('') }}
+                    className="text-sm btn-secondary px-4 py-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   )
