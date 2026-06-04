@@ -7,6 +7,9 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { priceId } = await req.json()
+  if (!priceId) return NextResponse.json({ error: 'Missing priceId' }, { status: 400 })
+
   const { data: carrier } = await supabase.from('carriers').select('*').eq('id', user.id).single()
 
   let customerId = carrier?.stripe_customer_id
@@ -20,10 +23,10 @@ export async function POST(req: NextRequest) {
     customer: customerId,
     mode: 'subscription',
     payment_method_types: ['card'],
-    line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
+    line_items: [{ price: priceId, quantity: 1 }],
     subscription_data: { trial_period_days: 14 },
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/upgrade`,
   })
 
   return NextResponse.json({ url: session.url })
