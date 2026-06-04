@@ -26,12 +26,6 @@ export default function ConfirmPage() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
         <div className="card">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">CW</span>
-            </div>
-            <span className="font-semibold text-slate-900">CDLWatch</span>
-          </div>
           {status === 'loading' && (
             <>
               <div className="w-12 h-12 bg-brand-50 rounded-full flex items-center justify-center mx-auto mb-4">
