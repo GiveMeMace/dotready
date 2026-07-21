@@ -359,9 +359,12 @@ export default function DashboardPage() {
             <button onClick={sendTestEmail} disabled={sendingTest} className="text-sm bg-brand-50 text-brand-600 hover:bg-brand-100 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-60">
               {sendingTest ? 'Sending...' : '📧 Email summary'}
             </button>
-            {carrier?.stripe_plan === 'pro' && (
-              <button onClick={exportCSV} className="text-sm bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg font-medium transition-colors">⬇ Export CSV</button>
-            )}
+            <button
+              onClick={carrier?.stripe_plan === 'pro' ? exportCSV : undefined}
+              disabled={carrier?.stripe_plan !== 'pro'}
+              title={carrier?.stripe_plan === 'pro' ? 'Export all drivers as CSV' : 'Upgrade to Pro to export your driver data as CSV'}
+              className="text-sm bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+            >⬇ Export CSV{carrier?.stripe_plan !== 'pro' && ' (Pro)'}</button>
             <div className="flex items-center gap-2">
               <label className="text-xs text-slate-500 font-medium">Sort by</label>
               <select
