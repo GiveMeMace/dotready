@@ -44,6 +44,7 @@ function worstDays(driver: Driver) {
 export default function DashboardPage() {
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [carrier, setCarrier] = useState<Carrier | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [showAdd, setShowAdd] = useState(false)
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
@@ -59,6 +60,7 @@ export default function DashboardPage() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) { router.push('/auth'); return }
     const user = session.user
+    setUserEmail(user.email || null)
 
     let { data: carrierData } = await supabase.from('carriers').select('*').eq('id', user.id).single()
     if (!carrierData) {
@@ -208,6 +210,17 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url)
   }
 
+  async function setPlanDev(plan: 'trial' | 'starter' | 'pro') {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const updates = plan === 'trial'
+      ? { stripe_status: 'trialing', stripe_plan: null, trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() }
+      : { stripe_status: 'active', stripe_plan: plan }
+    const { error } = await supabase.from('carriers').update(updates).eq('id', session.user.id)
+    if (error) { alert('Dev switch failed: ' + error.message); return }
+    loadData()
+  }
+
   async function signOut() {
     await supabase.auth.signOut()
     router.push('/')
@@ -323,6 +336,16 @@ export default function DashboardPage() {
       
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+
+        {userEmail && userEmail === process.env.NEXT_PUBLIC_ADMIN_EMAIL && (
+          <div className="mb-6 rounded-xl border border-dashed border-purple-300 bg-purple-50 px-4 py-3 flex items-center gap-3 flex-wrap">
+            <span className="text-xs font-semibold text-purple-700">🔧 Dev tools</span>
+            <span className="text-xs text-purple-600">Current: {carrier?.stripe_plan || (carrier?.stripe_status === 'trialing' ? 'trial' : carrier?.stripe_status || 'none')}</span>
+            <button onClick={() => setPlanDev('trial')} className="text-xs bg-white border border-purple-200 text-purple-700 hover:bg-purple-100 px-2.5 py-1 rounded-lg font-medium">Set Trial</button>
+            <button onClick={() => setPlanDev('starter')} className="text-xs bg-white border border-purple-200 text-purple-700 hover:bg-purple-100 px-2.5 py-1 rounded-lg font-medium">Set Starter</button>
+            <button onClick={() => setPlanDev('pro')} className="text-xs bg-white border border-purple-200 text-purple-700 hover:bg-purple-100 px-2.5 py-1 rounded-lg font-medium">Set Pro</button>
+          </div>
+        )}
 
         {/* Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
