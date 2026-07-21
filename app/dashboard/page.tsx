@@ -211,13 +211,16 @@ export default function DashboardPage() {
   }
 
   async function setPlanDev(plan: 'trial' | 'starter' | 'pro') {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return
-    const updates = plan === 'trial'
-      ? { stripe_status: 'trialing', stripe_plan: null, trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() }
-      : { stripe_status: 'active', stripe_plan: plan }
-    const { error } = await supabase.from('carriers').update(updates).eq('id', session.user.id)
-    if (error) { alert('Dev switch failed: ' + error.message); return }
+    const res = await fetch('/api/dev/set-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan }),
+    })
+    if (!res.ok) {
+      const j = await res.json().catch(() => ({}))
+      alert(j.error || 'Failed to set plan')
+      return
+    }
     loadData()
   }
 
